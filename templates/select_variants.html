@@ -55,36 +55,59 @@
         <input type="submit" value="Create Products">
     </form>
     
-    <script>
-        $(document).ready(function() {
-            var variantMapping = Object.assign({}, ...JSON.parse('{{ variant_mappings|tojson }}'));
-            console.log(variantMapping);
-            $('.size, .color').change(function() {
-                var blueprint = $(this).data('blueprint');
-                var provider = $(this).data('provider');
-                var sizeInputs = $('input.size[data-blueprint="' + blueprint + '"][data-provider="' + provider + '"]:checked');
-                var colorInputs = $('input.color[data-blueprint="' + blueprint + '"][data-provider="' + provider + '"]:checked');
-                var variantIds = [];
+<script>
+    $(document).ready(function() {
+        var variantMapping = Object.assign({}, ...JSON.parse('{{ variant_mappings|tojson }}'));
+        console.log(variantMapping);
+        $('.size, .color').off('change').on('change', function() {
+            var blueprint = $(this).data('blueprint');
+            var provider = $(this).data('provider');
+            var sizeInputs = $('input.size[data-blueprint="' + blueprint + '"][data-provider="' + provider + '"]:checked');
+            var colorInputs = $('input.color[data-blueprint="' + blueprint + '"][data-provider="' + provider + '"]:checked');
+            var variantIds = [];  // Reset variantIds to an empty array each time
 
+            if (sizeInputs.length > 0 && colorInputs.length > 0) {
+                // If both sizes and colors are selected, use both to find the variant id.
                 sizeInputs.each(function() {
                     var size = $(this).val();
                     colorInputs.each(function() {
                         var color = $(this).val();
                         console.log(size, color);
-                        var variantId = variantMapping[blueprint][provider][size][color];  // Adjust based on actual structure of variant_mapping
+                        var variantId = variantMapping[blueprint][provider][size][color];
                         if (variantId) {
                             variantIds.push(variantId);
                         }
                     });
                 });
+            } else if (sizeInputs.length > 0) {
+                // If only sizes are selected, use sizes only to find the variant id.
+                sizeInputs.each(function() {
+                    var size = $(this).val();
+                    console.log(size);
+                    var variantId = variantMapping[blueprint][provider][size]["No Color"];
+                    if (variantId) {
+                        variantIds.push(variantId);
+                    }
+                });
+            } else if (colorInputs.length > 0) {
+                // If only colors are selected, use colors only to find the variant id.
+                colorInputs.each(function() {
+                    var color = $(this).val();
+                    console.log(color);
+                    var variantId = variantMapping[blueprint][provider]["No Size"][color];
+                    if (variantId) {
+                        variantIds.push(variantId);
+                    }
+                });
+            }
 
-        
-                console.log("Variant IDs: ", variantIds); // Log the variant IDs to the console
+            console.log("Variant IDs: ", variantIds); // Log the variant IDs to the console
 
-                $('input[name="variant_id_' + blueprint + '_' + provider + '"]').val(variantIds.join(','));
-                console.log(variantIds.join(','));
-            });
+            $('input[name="variant_id_' + blueprint + '_' + provider + '"]').val(variantIds.join(','));
+            console.log(variantIds.join(','));
         });
-    </script>
+    });
+</script>    
+    
 </body>
 </html>

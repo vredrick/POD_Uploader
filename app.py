@@ -94,12 +94,22 @@ def select_variants():
                     if 'options' in variant:
                         size = variant['options'].get('size')
                         color = variant['options'].get('color')
-                        if size and color:
+                        if size:
                             sizes.add(size)
+                        if color:
                             colors.add(color)
+                        if size and color:
                             if size not in variant_mapping:
                                 variant_mapping[size] = {}
                             variant_mapping[size][color] = variant['id']
+                        elif size:
+                            if size not in variant_mapping:
+                                variant_mapping[size] = {}
+                            variant_mapping[size]["No Color"] = variant['id']
+                        elif color:
+                            if "No Size" not in variant_mapping:
+                                variant_mapping["No Size"] = {}
+                            variant_mapping["No Size"][color] = variant['id']
 
                 print_provider_details = {
                     'blueprint_id': blueprint_id,
