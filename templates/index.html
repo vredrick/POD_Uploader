@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Printify App</title>
+</head>
+<body>
+    <h1>Welcome to the Printify App!</h1>
+    <form action="{{ url_for('index') }}" method="POST">
+        <label for="token">Printify API Token:</label>
+        <input type="text" id="token" name="token" required>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

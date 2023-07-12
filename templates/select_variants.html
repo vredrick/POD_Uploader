@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Variants</title>
+    <style>
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .options .column {
+            flex-basis: 50%;
+        }
+        .options .column div {
+            display: flex;
+            align-items: center;
+        }
+        .options .column label {
+            margin-left: 5px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Select Variants</h1>
+    <form method="POST" action="/create_product">
+        <input type="hidden" name="token" value="{{ token }}">
+        <input type="hidden" name="shop_id" value="{{ shop_id }}">
+        {% for provider in print_providers %}
+            <h2>{{ provider.title }}</h2>
+            <input type="hidden" name="blueprint_id[]" value="{{ provider.blueprint_id }}">
+            <input type="hidden" name="print_provider_id[]" value="{{ provider.print_provider_id }}">
+            <div class="options">
+                <div class="column">
+                    <div>Sizes:</div>
+                    {% for size in provider.sizes|sort %}
+                        <div>
+                            <input type="checkbox" class="size" data-blueprint="{{ provider.blueprint_id }}" data-provider="{{ provider.print_provider_id }}" value="{{ size }}">
+                            <label>{{ size }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="column">
+                    <div>Colors:</div>
+                    {% for color in provider.colors %}
+                        <div>
+                            <input type="checkbox" class="color" data-blueprint="{{ provider.blueprint_id }}" data-provider="{{ provider.print_provider_id }}" value="{{ color }}">
+                            <label>{{ color }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <input type="hidden" name="variant_id_{{ provider.blueprint_id }}_{{ provider.print_provider_id }}" value="">
+        {% endfor %}
+        <input type="submit" value="Create Products">
+    </form>
+    
+    <script>
+        $(document).ready(function() {
+            var variantMapping = Object.assign({}, ...JSON.parse('{{ variant_mappings|tojson }}'));
+            console.log(variantMapping);
+            $('.size, .color').change(function() {
+                var blueprint = $(this).data('blueprint');
+                var provider = $(this).data('provider');
+                var sizeInputs = $('input.size[data-blueprint="' + blueprint + '"][data-provider="' + provider + '"]:checked');
+                var colorInputs = $('input.color[data-blueprint="' + blueprint + '"][data-provider="' + provider + '"]:checked');
+                var variantIds = [];
+
+                sizeInputs.each(function() {
+                    var size = $(this).val();
+                    colorInputs.each(function() {
+                        var color = $(this).val();
+                        console.log(size, color);
+                        var variantId = variantMapping[blueprint][provider][size][color];  // Adjust based on actual structure of variant_mapping
+                        if (variantId) {
+                            variantIds.push(variantId);
+                        }
+                    });
+                });
+
+        
+                console.log("Variant IDs: ", variantIds); // Log the variant IDs to the console
+
+                $('input[name="variant_id_' + blueprint + '_' + provider + '"]').val(variantIds.join(','));
+                console.log(variantIds.join(','));
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Printify App - Select Print Provider</title>
+</head>
+<body>
+    <h1>Select a Print Provider</h1>
+    <form action="{{ url_for('select_variants') }}" method="POST">
+        <input type="hidden" name="token" value="{{ token }}">
+        <input type="hidden" name="shop_id" value="{{ shop_id }}">
+        
+        {% for item in print_providers %}
+            <h2>{{ item.title }}</h2>
+            <label for="print_provider_id_{{ item.blueprint_id }}">Select a Print Provider:</label>
+            <select id="print_provider_id_{{ item.blueprint_id }}" name="print_provider_id_{{ item.blueprint_id }}">
+                {% for provider in item.providers %}
+                    <option value="{{ provider.id }}">{{ provider.title }}</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="blueprint_id_{{ item.blueprint_id }}" value="{{ item.blueprint_id }}">
+        {% endfor %}
+        
+        <input type="submit" value="Next">
+    </form>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Printify App - Select Store</title>
+</head>
+<body>
+    <h1>Select a Store</h1>
+    <form action="{{ url_for('select_store') }}" method="POST">
+        <input type="hidden" name="token" value="{{ token }}">
+        <label for="shop_id">Select a Store:</label>
+        <select id="shop_id" name="shop_id">
+            {% for shop in shops %}
+            <option value="{{ shop.id }}">{{ shop.title }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Next">
+    </form>
+</body>
+</html>
