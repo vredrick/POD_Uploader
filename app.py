@@ -7,11 +7,15 @@ import traceback
 
 app = Flask(__name__)
 
-# Set the base URL and headers for Printify API requests
+# Set the base URL for Printify API requests
 BASE_URL = 'https://api.printify.com/v1/'
-headers = {
-    'Content-Type': 'application/json'
-}
+
+def build_headers(token):
+    """Return headers for Printify API requests."""
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {token}'
+    }
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -204,29 +208,25 @@ def create_product():
 
 def get_printify_shops(token):
     url = BASE_URL + 'shops.json'
-    headers['Authorization'] = 'Bearer ' + token
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=build_headers(token))
     shops = response.json()
     return shops
 
 def get_product_title(blueprint_id, token):
     url = BASE_URL + f'catalog/blueprints/{blueprint_id}.json'
-    headers['Authorization'] = 'Bearer ' + token
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=build_headers(token))
     product_data = response.json()
     return product_data['title']  # replace 'title' with the correct key for the product title
 
 def get_print_providers(blueprint_id, token):
     url = BASE_URL + f'catalog/blueprints/{blueprint_id}/print_providers.json'
-    headers['Authorization'] = 'Bearer ' + token
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=build_headers(token))
     print_providers = response.json()
     return print_providers
 
 def get_variants(blueprint_id, print_provider_id, token):
     url = BASE_URL + f'catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/variants.json'
-    headers['Authorization'] = 'Bearer ' + token
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=build_headers(token))
     data = response.json()
 
     print(f"Response from Printify API:All Variant Recieved Suceesfully") # Debugging print
@@ -239,12 +239,11 @@ def get_variants(blueprint_id, print_provider_id, token):
 
 def upload_image(file_name, url, token):
     upload_url = BASE_URL + 'uploads/images.json'
-    headers['Authorization'] = 'Bearer ' + token
     data = {
         'file_name': file_name,
         'url': url
     }
-    response = requests.post(upload_url, headers=headers, json=data)
+    response = requests.post(upload_url, headers=build_headers(token), json=data)
     if response.status_code != 200:
         raise Exception(f"Failed to upload image: {response.text}")
     print(f"Response from Printify API: {response.text} Image Uploaded Successfully")
@@ -253,8 +252,7 @@ def upload_image(file_name, url, token):
 
 def create_product_api(shop_id, product_data, token):
     url = BASE_URL + f'shops/{shop_id}/products.json'
-    headers['Authorization'] = 'Bearer ' + token
-    response = requests.post(url, headers=headers, json=product_data)
+    response = requests.post(url, headers=build_headers(token), json=product_data)
     print(product_data)
     #print(f"Response from Printify API: {response.text}")
     return response
