@@ -229,7 +229,7 @@ def get_variants(blueprint_id, print_provider_id, token):
     response = requests.get(url, headers=build_headers(token))
     data = response.json()
 
-    print(f"Response from Printify API:All Variant Recieved Suceesfully") # Debugging print
+    logging.debug("Response from Printify API: All variants received successfully")
 
     # Get the list of variants from the response data
     variants = data['variants']
